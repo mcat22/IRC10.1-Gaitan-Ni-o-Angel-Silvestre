@@ -1,0 +1,82 @@
+# roles/kubernetes/tasks/install.yml
+
+- name: Desactivar swap
+  command: swapoff -a
+  become: true
+
+- name: Eliminar swap de /etc/fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^\s*([^#]\S*\s+\S+\s+swap\s+\S+.*)$'
+    replace: '# \1'
+  become: true
+
+- name: Habilitar módulos del kernel necesarios
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - overlay
+    - br_netfilter
+  become: true
+
+- name: Asegurar que los módulos estén persistentes
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    content: |
+      overlay
+      br_netfilter
+  become: true
+
+- name: Configurar parámetros de red requeridos por Kubernetes
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  with_items:
+    - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
+    - { key: net.bridge.bridge-nf-call-iptables, value: 1 }
+    - { key: net.ipv4.ip_forward, value: 1 }
+  become: true
+
+- name: Instalar paquetes requeridos
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Agregar clave GPG de Kubernetes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+  become: true
+
+- name: Agregar repositorio de Kubernetes
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+  become: true
+
+- name: Instalar kubelet, kubeadm, kubectl
+  apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Evitar que se actualicen automáticamente los paquetes de Kubernetes
+  apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: hold
+  become: true

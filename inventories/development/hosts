@@ -1,0 +1,9 @@
+[k8s_master]
+192.168.159.140 ansible_user=mcat
+
+[k8s_worker]
+192.168.159.141 ansible_user=mcat
+
+[k8s_cluster:children]
+k8s_master
+k8s_worker

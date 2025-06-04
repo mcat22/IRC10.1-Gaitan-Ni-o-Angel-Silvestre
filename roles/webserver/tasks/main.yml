@@ -1,0 +1,21 @@
+---
+# tasks file for roles/webserver---
+- name: Instalar Apache
+  ansible.builtin.yum:
+    name: httpd
+    state: present
+
+- name: Copiar archivo index.html
+  ansible.builtin.copy:
+    src: index.html
+    dest: /var/www/html/index.html
+    owner: apache
+    group: apache
+    mode: '0644'
+
+- name: Iniciar y habilitar Apache
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+

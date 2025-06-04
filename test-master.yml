@@ -1,0 +1,8 @@
+# test-master.yml
+- name: Test directo del rol kubernetes -> master.yml
+  hosts: k8s_master
+  become: yes
+  roles:
+    - role: kubernetes
+      tasks_from: master.yml
+

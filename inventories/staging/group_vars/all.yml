@@ -1,0 +1,5 @@
+---
+env: staging
+http_port: 8081
+max_clients: 100
+

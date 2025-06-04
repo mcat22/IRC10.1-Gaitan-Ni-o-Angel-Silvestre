@@ -1,0 +1,5 @@
+---
+env: development
+http_port: 8080
+max_clients: 50
+

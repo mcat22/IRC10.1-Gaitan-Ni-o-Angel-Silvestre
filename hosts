@@ -1,0 +1,5 @@
+[servidores]
+192.168.159.140 ansible_user=mcat ansible_ssh_private_key_file=/root/.ssh/id_ed25519
+192.168.159.141 ansible_user=mcat ansible_ssh_private_key_file=/root/.ssh/id_ed25519
+
+

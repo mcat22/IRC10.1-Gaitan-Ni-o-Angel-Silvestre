@@ -1,0 +1,13 @@
+---
+- name: Prueba de variables por entorno
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Mostrar variables
+      debug:
+        msg:
+          - "Entorno: {{ env }}"
+          - "Puerto HTTP: {{ http_port }}"
+          - "Max Clientes: {{ max_clients }}"
+

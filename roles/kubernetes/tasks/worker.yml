@@ -1,0 +1,4 @@
+---
+- name: Unir al nodo worker al clúster
+  command: "{{ hostvars[groups['kube_master'][0]].join_command }}"
+

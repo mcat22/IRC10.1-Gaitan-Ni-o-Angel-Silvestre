@@ -1,0 +1,34 @@
+---
+- name: Despliegue con Ansible según entorno
+  hosts: all
+  become: true
+  vars:
+    apache_pkg: httpd
+
+  tasks:
+    - name: Mostrar entorno actual
+      ansible.builtin.debug:
+        msg: "Ejecutando en el entorno: {{ env }}"
+
+    - name: Crear el usuario 'Clase'
+      ansible.builtin.user:
+        name: Clase
+        state: present
+        shell: /bin/bash
+
+    - name: Instalar Apache
+      ansible.builtin.yum:
+        name: "{{ apache_pkg }}"
+        state: present
+
+    - name: Copiar página web
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        mode: "0644"
+
+    - name: Habilitar y arrancar Apache
+      ansible.builtin.service:
+        name: "{{ apache_pkg }}"
+        state: started
+        enabled: true

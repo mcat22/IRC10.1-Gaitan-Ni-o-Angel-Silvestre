@@ -1,0 +1,8 @@
+# kubernetes.yml
+- name: Instalar Kubernetes base en todos los nodos
+  hosts: k8s_cluster
+  become: yes
+  roles:
+    - role: kubernetes
+      tasks_from: install.yml
+

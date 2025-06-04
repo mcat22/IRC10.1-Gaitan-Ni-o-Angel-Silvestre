@@ -1,0 +1,7 @@
+# roles/kubernetes/defaults/main.yml
+---
+# Versión específica de Kubernetes (opcional)
+kubernetes_version: "1.29.0-00"
+
+# CIDR para la red de pods (requerido por kubeadm init)
+pod_network_cidr: "192.168.0.0/16"

@@ -1,0 +1,8 @@
+[webservers]
+staging-web-01 ansible_host=192.168.159.140 ansible_user=mcat
+
+[dbservers]
+staging-db-01 ansible_host=192.168.159.141 ansible_user=mcat
+
+[all:vars]
+env=staging

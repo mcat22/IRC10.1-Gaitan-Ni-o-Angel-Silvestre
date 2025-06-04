@@ -1,0 +1,34 @@
+---
+- name: Inicializar el nodo master con kubeadm
+  command: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
+  register: kubeadm_init_output
+  become: true
+
+- name: Crear directorio .kube para el usuario mcat
+  file:
+    path: /home/mcat/.kube
+    state: directory
+    owner: mcat
+    group: mcat
+    mode: 0755
+  become: true
+
+- name: Copiar config de Kubernetes para el usuario mcat
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/mcat/.kube/config
+    remote_src: yes
+    owner: mcat
+    group: mcat
+    mode: 0644
+  become: true
+
+- name: Extraer comando kubeadm join
+  shell: kubeadm token create --print-join-command
+  register: join_command
+  become: true
+
+- name: Guardar join_command para workers
+  set_fact:
+    worker_join_command: "{{ join_command.stdout }}"
+
