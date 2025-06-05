@@ -1,6 +1,6 @@
 # Proyecto de Automatización con Ansible
 
-Este proyecto usa **Ansible** para automatizar la configuración de servidores en tres entornos: `development`, `staging` y `production`. Utiliza **inventarios separados**, **roles**, y **variables por entorno**.
+Este proyecto usa Ansible para automatizar la configuración de servidores en tres entornos: `development`, `staging` y `production`. Utiliza **inventarios separados**, **roles**, y **variables por entorno**.
 
 ---
 
