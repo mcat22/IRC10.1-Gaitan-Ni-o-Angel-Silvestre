@@ -1,51 +1,143 @@
-# Proyecto de Automatización con Ansible
+# 🚀 Proyecto de Automatización con Docker, Ansible, Flask y Kubernetes
 
-Este proyecto usa Ansible para automatizar la configuración de servidores en tres entornos: `development`, `staging` y `production`. Utiliza **inventarios separados**, **roles**, y **variables por entorno**.
-
----
-
-## 📂 Estructura del Proyecto
-
-```
-ansible/
-├── desafio.yml                # Playbook anterior (puede eliminarse si no se usa)
-├── site.yml                   # Playbook principal por roles
-├── files/
-│   └── index.html             # Archivo web a desplegar
-├── inventories/
-│   ├── development/
-│   │   ├── hosts              # Inventario para desarrollo
-│   │   └── group_vars/
-│   │       └── all.yml        # Variables para desarrollo
-│   ├── staging/
-│   │   ├── hosts
-│   │   └── group_vars/
-│   │       └── all.yml
-│   └── production/
-│       ├── hosts
-│       └── group_vars/
-│           └── all.yml
-├── roles/
-│   └── webserver/
-│       ├── tasks/
-│       │   └── main.yml       # Tareas para configurar el servidor web (Apache)
-│       └── files/
-│           └── index.html     # Copia del archivo web
-```
+Este proyecto proporciona una solución integral para la automatización y orquestación de servidores Linux mediante **Ansible**, visualizada a través de una interfaz web desarrollada con **Flask** y contenida en **Docker**. Además, incluye el despliegue y preparación de nodos para clústeres de **Kubernetes**, todo gestionado por medio de roles, inventarios y buenas prácticas de infraestructura como código (IaC).
 
 ---
 
-## 🧾 Paso a paso realizado
+## 🧱 Tecnologías utilizadas
 
-### Paso 1: Crear inventarios por entorno
+- 🐳 Docker
+- 🐍 Flask
+- 📦 Ansible
+- ☸️ Kubernetes (kubeadm, kubelet, kubectl)
+- 🌐 HTML + Jinja2
+- 🐧 Rocky Linux (nodos gestionados)
+- Kali Linux (nodo con Docker)
 
-```bash
-mkdir -p inventories/{development,staging,production}/group_vars
+---
+
+## 🖼️ Vista general del sistema
+
+- Login básico a través de la interfaz Flask.
+- Ejecución de tareas de Ansible por botón vía CLI (`subprocess`).
+- Visualización de logs de ejecución.
+- Automatización de configuración para Apache y Kubernetes usando Ansible.
+- Soporte para múltiples entornos (`development`, `staging`, `production`).
+
+---
+
+## 📂 Estructura del proyecto
+
+```
+.
+├── docker-flask-app/
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── templates/
+│   └── static/
+│
+├── ansible/
+│   ├── site.yml
+│   ├── playbook-apache.yml
+│   ├── playbook-k8s.yml
+│   ├── inventories/
+│   │   ├── development/
+│   │   ├── staging/
+│   │   └── production/
+│   └── roles/
+│       ├── webserver/
+│       ├── apache/
+│       └── kubernetes/
+└── README.md
 ```
 
-Crear archivos de inventario (`hosts`) para cada entorno. Ejemplo para `development`:
+---
 
-```ini
+
+---
+
+## 🐍 Aplicación Flask (app.py)
+
+La aplicación Flask proporciona autenticación básica, ejecución de playbooks remotos vía SSH usando Paramiko, y una interfaz visual para seleccionar y ejecutar los playbooks disponibles. También genera y visualiza logs de actividad.
+
+### Características clave:
+- Autenticación por usuario y contraseña.
+- Listado remoto de archivos `.yml` en un nodo Rocky Linux vía SSH.
+- Ejecución remota de playbooks usando `paramiko`.
+- Registro de eventos en logs locales (`logs/ansible-ui.log`).
+- Vistas protegidas (`/dashboard`, `/logs`) con control de sesión.
+
+> Los datos de conexión y rutas se configuran directamente en `app.py`. Por seguridad en producción, se recomienda usar variables de entorno.
+
+---
+
+## 🐳 docker-compose.yml
+
+```yaml
+version: '3.8'
+
+services:
+  flask-saludo-app:
+    image: flask-saludo-app
+    container_name: flask-saludo-app
+    ports:
+      - "5001:5050"
+    restart: unless-stopped
+```
+
+Este archivo permite levantar fácilmente el contenedor con Flask utilizando `docker-compose up -d`.
+
+---
+
+## 📦 requirements.txt
+
+```
+flask
+paramiko
+```
+
+Estas dependencias son necesarias para levantar correctamente la app Flask dentro del contenedor Docker.
+
+
+## ⚙️ Uso de la interfaz web
+
+docker build -t flask-ansible-app .
+docker run -d -p 5100:5001 --name ansible-ui flask-ansible-app
+
+
+Visita: [http://localhost:5100](http://localhost:5100)
+
+
+![Captura de pantalla 2025-07-04 222801](https://github.com/user-attachments/assets/23b7294d-2bba-4ed4-a2be-a2cd182e6887)
+
+
+
+## 🔗 Integración Flask-Ansible
+
+La app Flask ejecuta comandos de Ansible en una máquina remota (Rocky Linux) vía SSH:
+
+```python
+subprocess.run(["ansible-playbook", "playbook-web.yml", "-i", "inventories/development/hosts"])
+```
+
+Requisitos:
+
+- Flask con acceso SSH a la máquina con Ansible.
+- Permisos `sudo` si se requieren.
+- Variables configuradas correctamente por entorno.
+
+---
+
+## 🧾 Automatización con Ansible
+
+![image](https://github.com/user-attachments/assets/33ca5101-01e1-4887-a986-8d0ed0295339)
+
+### 📌 Inventarios por entorno
+
+Ejemplo `inventories/development/hosts`:
+
+  ini
 [webservers]
 dev-web-01 ansible_host=192.168.159.140 ansible_user=mcat
 
@@ -56,9 +148,7 @@ dev-db-01 ansible_host=192.168.159.141 ansible_user=mcat
 env=development
 ```
 
-### Paso 2: Variables por entorno
-
-Archivo `inventories/development/group_vars/all.yml`:
+### 📌 Variables por entorno (`group_vars/all.yml`)
 
 ```yaml
 env: development
@@ -66,73 +156,86 @@ http_port: 8080
 max_clients: 50
 ```
 
-> Repetir para `staging` y `production` cambiando los valores según corresponda.
+---
 
-### Paso 3: Crear rol `webserver`
+## 🧱 Roles de Ansible
 
-```bash
-ansible-galaxy init roles/webserver
-```
+### `webserver` / `apache`
 
-Editar `roles/webserver/tasks/main.yml`:
+Instala y habilita Apache con un archivo personalizado:
 
 ```yaml
 - name: Instalar Apache
-  ansible.builtin.yum:
+  yum:
     name: httpd
     state: present
 
-- name: Copiar archivo index.html
-  ansible.builtin.copy:
+- name: Copiar index.html
+  copy:
     src: index.html
     dest: /var/www/html/index.html
-    owner: apache
-    group: apache
     mode: '0644'
 
-- name: Iniciar y habilitar Apache
-  ansible.builtin.service:
+- name: Habilitar servicio
+  service:
     name: httpd
     state: started
     enabled: true
 ```
 
-### Paso 4: Crear `site.yml`
+### `kubernetes`
 
-```yaml
-- name: Configurar servidores web
-  hosts: webservers
-  become: true
-  roles:
-    - webserver
-```
+Prepara nodos con:
+
+- Instalación de Docker.
+- kubelet, kubeadm y kubectl.
+- Desactivación de swap.
+- Configuración de repositorios.
 
 ---
 
-## ▶️ Ejecutar el Playbook
+## 📜 Playbooks disponibles
+
+### Instalar Apache
 
 ```bash
-ansible-playbook -i inventories/development site.yml --ask-become-pass
+ansible-playbook -i inventories/development/hosts playbook-apache.yml --ask-become-pass
 ```
 
-> Cambiar `development` por `staging` o `production` según el entorno deseado.
+### Preparar nodos Kubernetes
 
----
-
-## 🛠 Solución de errores comunes
-
-### SSH - Permiso denegado (root)
-Asegúrate de que `ansible_user` sea un usuario válido con acceso SSH. Evita usar `root` directamente.
-
-```ini
-ansible_user=mcat
-```
-
-Y que puedas conectarte con:
 ```bash
-ssh mcat@192.168.159.140
+ansible-playbook -i inventories/development/hosts playbook-k8s.yml --ask-become-pass
 ```
 
 ---
 
-Este archivo resume todo el trabajo realizado hasta el momento. Se puede seguir construyendo sobre esta base, agregando nuevos roles, tareas, y entornos conforme se amplíen las necesidades.
+## 👤 Acceso
+
+Login simulado en `login.html`. Recomendaciones:
+
+- Usar `Flask-Login` o JWT.
+- Configurar autenticación SSH por clave pública.
+
+---
+
+## 📋 Mejoras pendientes
+
+- Conexión en tiempo real a ejecución de Ansible.
+- Métricas por nodo en el dashboard.
+- Integración completa con Kubernetes (despliegues y monitoreo desde Flask).
+- Autenticación segura.
+
+---
+
+## ✍️ Autor
+
+**Ángel Silvestre Gaitán Niño**  
+Proyecto final — Automatización con Ansible, Docker, Flask y Kubernetes  
+Instituto IRC 9.1
+
+---
+
+## 🛡️ Licencia
+
+MIT License.
