@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<a href="{{ url_for('add_ad_user') }}" class="btn btn-outline-secondary mt-3">Agregar usuario AD</a>
+
+<h3 class="mb-4">Playbooks disponibles</h3>
+
+<form method="post">
+  <div class="mb-3">
+    <label for="playbook" class="form-label">Selecciona un playbook:</label>
+    <select name="playbook" class="form-select" required>
+      {% for pb in playbooks %}
+        <option value="{{ pb }}">{{ pb }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-success">Ejecutar</button>
+</form>
+
+{% if output %}
+<hr>
+<h5 class="mt-4">Resultado:</h5>
+<pre class="bg-dark text-light p-3 rounded" style="white-space: pre-wrap;">{{ output }}</pre>
+{% endif %}
+
+{% endblock %}

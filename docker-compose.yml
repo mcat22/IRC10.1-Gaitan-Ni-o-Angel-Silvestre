@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  flaskapp:
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./logs:/app/logs
+      - /root/.ssh/flask-ansible:/root/.ssh/flask-ansible:ro

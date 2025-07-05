@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Agregar Usuario AD{% endblock %}
+{% block content %}
+<h3 class="mb-4">Agregar Usuario al Active Directory</h3>
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="fullname" class="form-label">Nombre completo</label>
+    <input type="text" name="fullname" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label for="username" class="form-label">Nombre de usuario (login)</label>
+    <input type="text" name="username" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Contraseña</label>
+    <input type="password" name="password" class="form-control" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Agregar Usuario</button>
+</form>
+
+{% if mensaje %}
+<hr>
+<h5>Resultado:</h5>
+<pre class="bg-dark text-light p-3 rounded">{{ mensaje }}</pre>
+{% endif %}
+{% endblock %}
